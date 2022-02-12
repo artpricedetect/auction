@@ -15,8 +15,29 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework.permissions import AllowAny
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Art Auction",  # 타이틀
+        default_version="v1",  # 버전
+        description="Art Auction 의 API 설명서입니다.",  # 설명
+        terms_of_service="https://github.com/artpricedetect/auction",
+        # contact=openapi.Contact(name="Art Auction", email="pmminje@gmail.com")
+    ),
+    validators=["flex"],
+    public=True,
+    permission_classes=(AllowAny,),
+)
 
 urlpatterns = [
+    path(
+        r"swagger",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
     path("webapp/", include("webapp.urls")),
     path("admin/", admin.site.urls),
 ]
