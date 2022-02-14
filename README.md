@@ -6,10 +6,11 @@ React Template: https://material-ui.com/store/collections/free-react-dashboard/ 
 
 ## 일정
 1. 필요 수집 데이터 리스트업 ~ 1/25
-2. ERD 확정 ~ 1/28
-3. 기능 기획 ~ 2/4
-4. UI 확정 ~ 2/11
-5. 개발 및 테스트 ~ 3/4
+2. ERD 확정 ~ 2/9
+3. 기초 기능 개발 (crawler, db input 등) ~ 2/18
+4. 분석 기능 기획, UI(리액트 템플릿) 확정 ~ 2/25
+5. 백엔드 개발 ~ 3/4
+6. 프론트엔드 개발 및 테스트 ~ 3/11
 
 ## Django 작동법
 $ python3 manage.py runserver

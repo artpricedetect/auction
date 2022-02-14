@@ -1,0 +1,5 @@
+# Directory where Art Auction Logs are stored
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
