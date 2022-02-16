@@ -54,4 +54,4 @@ class WorkSize(models.Model):
     prefix = models.CharField(max_length=255, null=True)  # 접두어
     suffix = models.CharField(max_length=255, null=True)  # 접미어
     mix_code = models.CharField(max_length=255, null=True)  # 믹스 코드..? (height로 적혀있음)
-    canvas_ext_yn = models.BooleanField(null=True)  # 캔버스 EXT 여부 
+    canvas_ext_yn = models.BooleanField(null=True)  # 캔버스 EXT 여부
