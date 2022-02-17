@@ -21,8 +21,6 @@ class Work(models.Model):
     status = models.CharField(max_length=255, null=True)  # 상태
     guarantee_yn = models.BooleanField(null=True)  # 보증서 유무
     img_url = models.CharField(max_length=255, null=True)  # 이미지 경로
-    picture_id = models.ForeignKey(
-        Picture, on_delete=models.PROTECT, null=True
-    )  # 회화 코드
+    picture_id = models.ForeignKey(Picture, on_delete=models.PROTECT, null=True)  # 회화 코드
     theme_id = models.ForeignKey(Theme, on_delete=models.PROTECT, null=True)  # 주제 코드
     size_num = models.CharField(max_length=255, null=True)  # 호 수
