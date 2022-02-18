@@ -1,0 +1,9 @@
+seoulauction:
+  entrypoint_url: 'https://www.seoulauction.com/login/'
+  login_url: 'https://www.seoulauction.com/processLogin'
+  api_url: 'https://www.seoulauction.com/api/actionSet'
+  id: ""
+  password: ""
+
+kauction:
+  url: "test.com"
