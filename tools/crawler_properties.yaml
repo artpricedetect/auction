@@ -2,8 +2,12 @@ seoulauction:
   entrypoint_url: 'https://www.seoulauction.com/login/'
   login_url: 'https://www.seoulauction.com/processLogin'
   api_url: 'https://www.seoulauction.com/api/actionSet'
+  img_url: 'https://www.seoulauction.com/nas_img/'
+  save_path_data: '/resources/data/seoulauction/'
+  save_path_image: '/resources/images/seoulauction/'
   id: ""
   password: ""
+  crawler_sleep_time: 5
 
 kauction:
   url: "test.com"
