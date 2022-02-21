@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 seoulauction:
   entrypoint_url: 'https://www.seoulauction.com/login/'
   login_url: 'https://www.seoulauction.com/processLogin'
@@ -17,6 +16,9 @@ kauction:
   bid_url: 'https://www.k-auction.com/Auction/BidTotalList/' #<lot_no>
   search_url: 'https://www.k-auction.com/Search/' #<search_word>
   artist_url: 'https://www.k-auction.com/Auction/AuctionWorkArtists'
+  image_url: 'https://images.k-auction.com/www/'
+  save_path_data: '/resources/data/kauction/'
+  save_path_image: '/resources/images/kauction/'
   id: 'bdori2003'
   password: '1!kauctionpwd'
   sleep_time: 5
