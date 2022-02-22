@@ -12,9 +12,9 @@ class CredentialManager:
         with open(filename) as crawler_properties_file:
             self.__credintial_info = yaml.load(crawler_properties_file, Loader=yaml.FullLoader)
 
-    def get_authorized_header(self, site):
+    def get_authorized_header(self, organization):
 
-        if site == "seoulauction":
+        if organization == "seoulauction":
             authorized_header = self.__get_seoulauction_login_session()
             return authorized_header if authorized_header else None
 

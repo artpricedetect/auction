@@ -74,7 +74,7 @@ class SeoulAuctionDataCrawler:
 
     # 로컬에 저장된 경매 정보 중 최신본 받아오기
     def get_local_latest_sale_no(self):
-        data_path = os.path.join(os.path.dirname(__file__), "../resources/data/seoulauction/")
+        data_path = os.path.join(os.path.dirname(__file__), "../../resources/data/seoulauction/")
 
         sale_list = os.listdir(data_path)
         if sale_list:
@@ -137,7 +137,7 @@ class SeoulAuctionDataCrawler:
 
         json_save_path = os.path.join(
             os.path.dirname(__file__),
-            "../" + self.__save_path_data + "sale_" + str(sale_no) + ".json",
+            "../../" + self.__save_path_data + "sale_" + str(sale_no) + ".json",
         )
 
         with open(json_save_path, "w", encoding="utf-8") as json_file:
@@ -158,7 +158,7 @@ class SeoulAuctionDataCrawler:
             return None
         else:
             absolute_save_path = os.path.join(
-                os.path.dirname(__file__), "../" + self.__save_path_image
+                os.path.dirname(__file__), "../../" + self.__save_path_image
             )
 
             # make directory
@@ -174,7 +174,7 @@ class SeoulAuctionDataCrawler:
     def save_sale_images(self, sale_no):
         sales_filename = os.path.join(
             os.path.dirname(__file__),
-            "../" + self.__save_path_data + "sale_" + str(sale_no) + ".json",
+            "../../" + self.__save_path_data + "sale_" + str(sale_no) + ".json",
         )
 
         if not os.path.exists(sales_filename):
