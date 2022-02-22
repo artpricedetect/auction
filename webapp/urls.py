@@ -9,4 +9,9 @@ urlpatterns = [
         views.CreateOrganizationAPI.as_view(),
         name="Create-Organization",
     ),
+    path(
+        "work/create",
+        views.CreateWorkAPI.as_view(),
+        name="Create-Work",
+    ),
 ]

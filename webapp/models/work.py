@@ -1,7 +1,7 @@
 from django.db import models
-from picture import Picture
-from theme import Theme
-from artist import Artist
+from webapp.models.picture import Picture
+from webapp.models.theme import Theme
+from webapp.models.artist import Artist
 
 # Create your models here.
 class Work(models.Model):

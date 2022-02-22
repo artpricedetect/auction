@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models.sales import *
+from .models.work import *
 
 
 class OrganizationsReadSerializer(serializers.ModelSerializer):
@@ -13,3 +14,9 @@ class OrganizationsCreateSerializer(serializers.Serializer):
 
     name = serializers.CharField(help_text="Organization Name", required=True)
     # CharField 외 FloatField, IntegerField, EmailField 등 여러 클래스 존재. 구글링 필요
+
+
+# JJ's serializers
+class WorkCreateSerializer(serializers.Serializer):
+
+    title_kor = serializers.CharField(help_text="Work Title(Kor)", required=True)
