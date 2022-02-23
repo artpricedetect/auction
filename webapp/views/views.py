@@ -32,20 +32,3 @@ class CreateOrganizationAPI(APIView):
         return JsonResponse(
             {"id": organization.id, "name": organization.name}, status=200, safe=False
         )
-
-
-# JJ's View
-
-
-class CreateWorkAPI(APIView):
-    @swagger_auto_schema()
-    def post(self, request):
-        seoul_saver = SeoulSaver()
-        jsonData = seoul_saver.get_json_data()
-        lotsData = jsonData["lots"]
-        for ld in lotsData:
-            title_kor = ld["TITLE_KO_TXT"]
-            work = Work(title_kor=title_kor)
-            work.save()
-
-        return JsonResponse({"title_kor": work.title_kor})

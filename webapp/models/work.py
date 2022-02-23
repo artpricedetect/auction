@@ -1,14 +1,14 @@
 from django.db import models
-from webapp.models.picture import Picture
-from webapp.models.theme import Theme
-from webapp.models.artist import Artist
+from ..models.picture import Picture
+from ..models.theme import Theme
+from ..models.artist import Artist
 
 # Create your models here.
 class Work(models.Model):
     models.AutoField(primary_key=True)  # 작품 id
     title_kor = models.CharField(max_length=255, null=True)  # 작품 한글명
     title_eng = models.CharField(max_length=255, null=True)  # 작품 영문명
-    artist_id = models.ForeignKey(Artist, on_delete=models.PROTECT, null=False)  # 작가 id
+    artist_id = models.ForeignKey(Artist, on_delete=models.PROTECT, null=True)  # 작가 id
     make_year = models.CharField(max_length=255, null=True)  # 제작 연도
     edition_yn = models.BooleanField(null=True)  # 에디션 여부
     edtion_num = models.CharField(max_length=255, null=True)  # 에디션 넘버(스트링)

@@ -41,8 +41,10 @@ if __name__ == "__main__":
     salesData = jsonData["sales"]
     lotsData = jsonData["lots"]
     imagesData = jsonData["images"]
-    for ld in lotsData:
-        print(ld["TITLE_KO_TXT"])
+    print(lotsData[0].keys())
+    # for ld in lotsData:
+        # print(ld["TITLE_KO_TXT"])
+        # print(ld["TITLE_EN_TXT"])
 
     # with open(json_path) as seoulJson:
     #     seoulData = json.load(seoulJson)

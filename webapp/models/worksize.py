@@ -1,7 +1,6 @@
-import imp
 from django.db import models
-from work import Work
-from unit import Unit
+from ..models.work import Work
+from ..models.unit import Unit
 
 
 class WorkSize(models.Model):
