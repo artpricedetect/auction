@@ -9,15 +9,13 @@ from drf_yasg.utils import swagger_auto_schema
 
 # 
 class CreateSeoulWorkAPI(APIView):
-    @swagger_auto_schema()
+    @swagger_auto_schema(request_body=SeoulWorkCreateSerializer)
     def post(self, request):
-        seoul_saver = SeoulSaver()
-        jsonData = seoul_saver.get_json_data()
-        lotsData = jsonData["lots"]
-        for ld in lotsData:
-            title_kor = ld["TITLE_KO_TXT"]
-            title_eng = ld["TITLE_EN_TXT"]
-            work = Work(title_kor=title_kor, title_eng=title_eng)
-            work.save()
-
-        return JsonResponse({"title_kor": work.title_kor, "title_eng": work.title_eng})
+        data = request.data
+        sale_no = data["sale_no"]
+        seoul_saver = SeoulSaver(sale_no)
+        workList = seoul_saver.make_work_model()
+        Work.objects.bulk_create(workList)
+        return JsonResponse(
+            {"id":sale_no}, status=200, safe=False
+        )

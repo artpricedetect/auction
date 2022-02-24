@@ -17,6 +17,6 @@ class OrganizationsCreateSerializer(serializers.Serializer):
 
 
 # JJ's serializers
-class WorkCreateSerializer(serializers.Serializer):
+class SeoulWorkCreateSerializer(serializers.Serializer):
 
-    title_kor = serializers.CharField(help_text="Work Title(Kor)", required=True)
+    sale_no = serializers.CharField(help_text="Sale No", required=True)
