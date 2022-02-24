@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup as bs
 import re
 import json
 
+from tools.crawlers.exceptions import LoginFailed
+
 
 class CredentialManager:
     def __init__(self):
@@ -18,25 +20,30 @@ class CredentialManager:
             authorized_header = self.__get_seoulauction_login_session()
             return authorized_header if authorized_header else None
 
-        if organization == 'kauction':
+        if organization == "kauction":
             authorized_header = self.__get_kauction_login_session()
             return authorized_header if authorized_header else None
 
     def __get_kauction_login_session(self):
         credintials = self.__credintial_info.get("kauction")
-        url = credintials['login_url']
-        headers = {'content-type': 'application/json'}
+        url = credintials["login_url"]
+        headers = {"content-type": "application/json"}
         data = json.dumps(
-            {"id": credintials['id'], "pwd": credintials['password'], "is_saved": "F", "highlight_read": ""})
+            {
+                "id": credintials["id"],
+                "pwd": credintials["password"],
+                "is_saved": "F",
+                "highlight_read": "",
+            }
+        )
 
         req = requests.post(url, headers=headers, data=data)
 
-        if req.json():
-            if req.json()['code'] == '00':
-                return req.cookies.get_dict()
-            else:  # 수정 필요
-                print('login_fail')  # 수정 필요
-        return None
+        if req.json() and req.status_code == 200:
+            if req.json()["code"] == "00":
+                cookie = ".AspNetCore.Cookies=" + req.cookies[".AspNetCore.Cookies"]
+                return {"cookie": cookie}
+        raise LoginFailed
 
     def __get_seoulauction_login_session(self):
 
