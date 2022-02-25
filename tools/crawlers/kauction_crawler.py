@@ -37,7 +37,11 @@ class KAuctionCrawler:
             "auc_title",
             "card_message",
         ]
-
+        # 기본 헤더 정보
+        self.__headers = {
+            "accept-language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Content-Type": "application/json",
+        }
         # kauction에서 사용하는 옥션 타입 별 코드 맵핑 정보
         self.__auc_kind_dict = {"Major": "1", "Premium": "2", "Weekly": "4"}
         self.__auc_kind_code_dict = {"1": "Major", "2": "Premium", "4": "Weekly"}
@@ -61,6 +65,7 @@ class KAuctionCrawler:
     # Credential Manager로 부터 생성된 cookie정보를 세팅
     def set_authorized_cookie(self, cookie_dict):
         self.__cookie = cookie_dict
+        self.__headers = self.__headers | self.__cookie
 
     # 모든 종류 옥션의 최신 옥션 번호 크롤링
     def get_latest_sale_no(self):
@@ -69,17 +74,11 @@ class KAuctionCrawler:
         req_data = json.dumps(
             {"search": "", "page": "1", "sort_column": "auc_end_date", "sort_option": "DESC"}
         )
-        headers = {
-            "cookie": self.__cookie,
-            "accept-language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Content-Type": "application/json",
-        }
-
         latest_dict = {auc_kind: "" for auc_kind in self.__auc_kind_dict}
 
         for auc_kind in self.__auc_kind_dict:
             url = url_base + auc_kind
-            res = requests.post(url, headers=headers, data=req_data)
+            res = requests.post(url, headers=self.__headers, data=req_data)
 
             if "data" not in res.json() or res.status_code != 200:
                 raise NeedReRequest(res.status_code, "get_lateset_sale_no")
@@ -99,11 +98,7 @@ class KAuctionCrawler:
         req_data = json.dumps(
             {"search": "", "page": str(page), "sort_column": "auc_end_date", "sort_option": "DESC"}
         )
-        headers = {
-            "accept-language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Content-Type": "application/json",
-        } | self.__cookie
-        res = requests.post(url, headers=headers, data=req_data)
+        res = requests.post(url, headers=self.__headers, data=req_data)
         auc_data = res.json()["data"]
 
         if (res.status_code == 200 and len(auc_data) != 10 and int(page) < 5) or (
@@ -165,10 +160,6 @@ class KAuctionCrawler:
         auc_kind_code = self.__auc_kind_dict[auc_kind]
         url = self.__crawler_prop["lot_url"] + auc_kind_code + "/" + auc_num
 
-        headers = {
-            "accept-language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Content-Type": "application/json",
-        } | self.__cookie
         headers_en = {"Content-Type": "application/json"} | self.__cookie
         req_data = json.dumps(
             {
@@ -180,7 +171,7 @@ class KAuctionCrawler:
             }
         )
         # 한글, 영어 각각 한번씩 요청을 보낸다
-        res = requests.post(url, headers=headers, data=req_data)
+        res = requests.post(url, headers=self.__headers, data=req_data)
         res_en = requests.post(url, headers=headers_en, data=req_data)
 
         if (
@@ -228,9 +219,7 @@ class KAuctionCrawler:
             "0" * (4 - len(str(auc_num))) + str(auc_num) + "/" + pre + name + post + "." + ext
         )
         url = self.__crawler_prop["image_url"] + self.__image_path_dict[auc_kind] + image_path
-        headers = {} | self.__cookie
-
-        res = requests.get(url, headers=headers)
+        res = requests.get(url, headers=self.__headers)
 
         if res.status_code != 200 or res.headers["content-type"] not in self.__image_formats:
             raise NeedReRequest(res.status_code, "save_single_lot_image")
@@ -275,10 +264,16 @@ class KAuctionCrawler:
 if __name__ == "__main__":
     cm = CredentialManager()
     cookie = cm.get_authorized_header("kauction")
+
     kr = KAuctionCrawler()
     kr.set_authorized_cookie(cookie)
-    kr.save_sales_data({"Major": (145, 146)}, ("Major",))
+    print(kr.get_latest_sale_no())
+    kr.save_sales_data(
+        {"Major": (145, 146)}, ("Major",)
+    )  # kr.save_sales_data(kr.get_latest_sale_no())
+
     image_names = kr.save_lots_data("Major", "146")
+
     kr.save_sale_images(
         image_names["auc_kind"], image_names["auc_num"], image_names["image_names"][:5]
     )
