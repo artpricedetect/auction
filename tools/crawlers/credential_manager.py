@@ -3,6 +3,9 @@ import yaml
 import os
 from bs4 import BeautifulSoup as bs
 import re
+import json
+
+from tools.crawlers.exceptions import LoginFailed
 
 
 class CredentialManager:
@@ -13,10 +16,34 @@ class CredentialManager:
             self.__credintial_info = yaml.load(crawler_properties_file, Loader=yaml.FullLoader)
 
     def get_authorized_header(self, organization):
-
         if organization == "seoulauction":
             authorized_header = self.__get_seoulauction_login_session()
             return authorized_header if authorized_header else None
+
+        if organization == "kauction":
+            authorized_header = self.__get_kauction_login_session()
+            return authorized_header if authorized_header else None
+
+    def __get_kauction_login_session(self):
+        credintials = self.__credintial_info.get("kauction")
+        url = credintials["login_url"]
+        headers = {"content-type": "application/json"}
+        data = json.dumps(
+            {
+                "id": credintials["id"],
+                "pwd": credintials["password"],
+                "is_saved": "F",
+                "highlight_read": "",
+            }
+        )
+
+        req = requests.post(url, headers=headers, data=data)
+
+        if req.json() and req.status_code == 200:
+            if req.json()["code"] == "00":
+                cookie = ".AspNetCore.Cookies=" + req.cookies[".AspNetCore.Cookies"]
+                return {"cookie": cookie}
+        raise LoginFailed
 
     def __get_seoulauction_login_session(self):
 

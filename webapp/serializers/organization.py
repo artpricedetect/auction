@@ -1,11 +1,10 @@
 from rest_framework import serializers
-from .models.sales import *
-from .models.work import *
+from webapp.models import organization
 
 
 class OrganizationsReadSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Organization
+        model = organization.Organization
         fields = "__all__"  # 모든 필드 포함
         # fields = ["id", "name"] 처럼 직접 명시할 수도 있음
 

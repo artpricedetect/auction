@@ -4,8 +4,10 @@ import yaml
 import os
 import sys
 import json
-from webapp.models.work import Work
 import logging
+
+from webapp.models.work import Work
+from webapp.models.worksize import WorkSize
 
 logger = logging.getLogger("my")
 
@@ -56,17 +58,43 @@ class SeoulSaver:
             work = Work(title_kor=title_kor, title_eng=title_eng, make_year=make_year, edition_num=edition_num, material_kor=material_kor, material_eng=material_eng, exhibition=exhibition, frame_yn=frame_yn, status=status, guarantee_yn=guarantee_yn, img_url=img_url)
             workList.append(work)
         return workList
+    
+    def make_worksize_model(self, workList):
+        jsonData = self.get_json_data()
+        lotsData = jsonData["lots"]
+        workSizeList = []
+        count = 0
+        for ld in lotsData:
+            sizeLd = ld["LOT_SIZE_JSON"][0]
+
+            unit_id = sizeLd["UNIT_CD"]
+            size1 = sizeLd["SIZE1"]
+            size2 = sizeLd["SIZE2"]
+            size3 = sizeLd["SIZE3"]
+            canvas_yn = sizeLd["CANVAS"]
+            diam_yn = sizeLd["DIAMETER_YN"]
+            prefix = sizeLd["PREFIX"]
+            suffix = sizeLd["SUFFIX"]
+            mix_code = sizeLd["MIX_CD"]
+            canvas_ext_yn = sizeLd["CANVAS_EXT_YN"]
+
+            workSize = WorkSize(work_id=workList[count], unit_id=unit_id, size1=size1, size2=size2, size3=size3, canvas_yn=canvas_yn, diam_yn=diam_yn, prefix=prefix, suffix=suffix, mix_code=mix_code, canvas_ext_yn=canvas_ext_yn)
+            workSizeList.append(workSize)
+            count += 1
+        return workSizeList
 
 
 if __name__ == "__main__":
     # filename = os.path.join(os.path.dirname(__file__), "SeoulAuction_687.json")
 
     seoul_saver = SeoulSaver("688")
-    jsonData = seoul_saver.get_json_data()
+    # workList, workSizeList = seoul_saver.make_work_model()
+
     # print(jsonData["lots"][3]["EXHI_INFO_JSON"])
-    # jsonData = seoul_saver.get_json_data()
+    jsonData = seoul_saver.get_json_data()
     # salesData = jsonData["sales"]
-    # lotsData = jsonData["lots"]
+    lotsData = jsonData["lots"]
+    print(lotsData[0]["LOT_SIZE_JSON"])
     # imagesData = jsonData["images"]
     # print(lotsData[0].keys())
     # for ld in lotsData:

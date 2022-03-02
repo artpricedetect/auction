@@ -1,11 +1,7 @@
-from django.shortcuts import render
-from rest_framework.response import Response
-from tools.savers.seoul_saver import SeoulSaver
-from webapp.models import sales
-from webapp.models.work import Work
+from webapp.models import sale
 from rest_framework.views import APIView
-from webapp.serializers import *
-from django.http import HttpResponse, JsonResponse
+from webapp.serializers.organization import *
+from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 
 # Create your views here.
@@ -14,7 +10,7 @@ from drf_yasg.utils import swagger_auto_schema
 class ReadOrganizationAPI(APIView):
     @swagger_auto_schema()
     def get(self, request):
-        queryset = sales.Organization.objects.all()
+        queryset = sale.Organization.objects.all()
         serializer = OrganizationsReadSerializer(queryset, many=True)
         return JsonResponse(serializer.data, safe=False)
 
