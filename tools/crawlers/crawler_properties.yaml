@@ -10,4 +10,15 @@ seoulauction:
   crawler_sleep_time: 5
 
 kauction:
-  url: "test.com"
+  login_url: 'https://www.k-auction.com/api/Member/Login'
+  auction_url: 'https://www.k-auction.com/api/Auction/Schedule/' #<auc_type>
+  lot_url: 'https://www.k-auction.com/api/Auction/' #<auc_kind>/<lot_no>
+  bid_url: 'https://www.k-auction.com/api/Auction/BidTotalList/' #<lot_no>
+  search_url: 'https://www.k-auction.com/api/Search/' #<search_word>
+  artist_url: 'https://www.k-auction.com/api/Auction/AuctionWorkArtists'
+  image_url: 'https://images.k-auction.com/www/'
+  save_path_data: '/resources/data/kauction/'
+  save_path_image: '/resources/images/kauction/'
+  id: 'bdori2003'
+  password: '1!kauctionpwd'
+  sleep_time: 5
