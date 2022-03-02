@@ -4,7 +4,7 @@ from tools.savers.seoul_saver import SeoulSaver
 from webapp.models.work import Work
 from webapp.models.worksize import WorkSize
 from rest_framework.views import APIView
-from webapp.serializers import *
+from webapp.serializers.seoul_work import *
 from django.http import HttpResponse, JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 

@@ -13,9 +13,3 @@ class OrganizationsCreateSerializer(serializers.Serializer):
 
     name = serializers.CharField(help_text="Organization Name", required=True)
     # CharField 외 FloatField, IntegerField, EmailField 등 여러 클래스 존재. 구글링 필요
-
-
-# JJ's serializers
-class SeoulWorkCreateSerializer(serializers.Serializer):
-
-    sale_no = serializers.CharField(help_text="Sale No", required=True)
