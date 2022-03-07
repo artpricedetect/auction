@@ -9,7 +9,7 @@ from django.http import HttpResponse, JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 
 # 
-class CreateSeoulWorkAPI(APIView):
+class CreateSeoulAPI(APIView):
     @swagger_auto_schema(request_body=SeoulCreateSerializer)
     def post(self, request):
         data = request.data
@@ -22,3 +22,16 @@ class CreateSeoulWorkAPI(APIView):
         return JsonResponse(
             {"id":sale_no}, status=200, safe=False
         )
+
+
+# class CreateSeoulLotAPI(APIView):
+#     @swagger_auto_schema(request_body=SeoulLotCreateSerializer)
+#     def post(self, request):
+#         data = request.data
+#         sale_no = data["sale_no"]
+#         seoul_saver = SeoulSaver(sale_no)
+#         lotList = seoul_saver.make_lot_model()
+#         Work.objects.bulk_create(lotList)
+#         return JsonResponse(
+#             {"id":sale_no}, status=200, safe=False
+#         )

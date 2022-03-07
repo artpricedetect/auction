@@ -1,5 +1,5 @@
 from django.db import models
-from webapp.models.sales import Sale
+from webapp.models.sale import Sale
 from webapp.models.work import Work
 
 

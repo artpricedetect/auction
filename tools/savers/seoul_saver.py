@@ -8,6 +8,10 @@ import logging
 
 from webapp.models.work import Work
 from webapp.models.worksize import WorkSize
+from webapp.models.lot import Lot
+from webapp.models.sale import Sale
+from webapp.models.sale_details import SaleDetails
+from webapp.models.artist import Artist
 
 logger = logging.getLogger("my")
 
@@ -34,8 +38,7 @@ class SeoulSaver:
         return jsonData
     
     # work 객체 생성해서 반환해주는 함수
-    def make_work_model(self):
-        jsonData = self.get_json_data()
+    def make_work_model(self, jsonData):
         lotsData = jsonData["lots"]
         workList = []
         for ld in lotsData:
@@ -59,8 +62,7 @@ class SeoulSaver:
             workList.append(work)
         return workList
     
-    def make_worksize_model(self, workList):
-        jsonData = self.get_json_data()
+    def make_worksize_model(self, jsonData, workList):
         lotsData = jsonData["lots"]
         workSizeList = []
         count = 0
@@ -83,6 +85,36 @@ class SeoulSaver:
             count += 1
         return workSizeList
 
+    def make_lot_model(self, jsonData):
+        lotsData = jsonData["lots"]
+        lotList = []
+        for ld in lotsData:
+            sale_id = ld["SALE_NO"]
+            lot_num = ld["LOT_NO"]
+            sold_yn = ld["SOLD_YN"]
+            sold_price = ld["LAST_PRICE"]
+            start_price = ld["START_PRICE"]
+            est_upper_price = ld["EXPE_PRICE_TO_JSON"]
+            est_lower_price = ld["EXPE_PRICE_FROM_JSON"]
+            bid_cnt = ld["BID_CNT"]
+
+            lot = Lot(sale_id=sale_id, lot_num=lot_num, sold_yn=sold_yn, sold_price=sold_price, start_price=start_price, est_upper_price=est_upper_price, est_lower_price=est_lower_price, bid_cnt=bid_cnt)
+            lotList.append(lot)
+        return lotList
+    
+    def make_sale_model(self, jsonData):
+        sale = Sale()
+        return sale
+    
+    def make_sale_details_model(self, jsonData):
+        saleDetailsList = []
+        return saleDetailsList
+    
+    def make_artist_model(self, jsonData):
+        artistList = []
+        return artistList
+
+
 
 if __name__ == "__main__":
     # filename = os.path.join(os.path.dirname(__file__), "SeoulAuction_687.json")
@@ -94,7 +126,8 @@ if __name__ == "__main__":
     jsonData = seoul_saver.get_json_data()
     # salesData = jsonData["sales"]
     lotsData = jsonData["lots"]
-    print(lotsData[0]["LOT_SIZE_JSON"])
+    print(jsonData["sales"])
+    # print(lotsData[0]["EXPE_PRICE_FROM_JSON"])
     # imagesData = jsonData["images"]
     # print(lotsData[0].keys())
     # for ld in lotsData:

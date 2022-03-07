@@ -1,7 +1,7 @@
 from django.urls import path
 
 from webapp.views import views
-from webapp.views import work
+from webapp.views import seoul_saver
 
 urlpatterns = [
     path("organizations/", views.ReadOrganizationAPI.as_view(), name="Read-Organization"),
@@ -11,8 +11,8 @@ urlpatterns = [
         name="Create-Organization",
     ),
     path(
-        "work/create/seoul",
-        work.CreateSeoulWorkAPI.as_view(),
-        name="Create-Work",
-    ),
+        "create/seoul",
+        seoul_saver.CreateSeoulAPI.as_view(),
+        name="seoul-create",
+    )
 ]
