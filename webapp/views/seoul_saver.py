@@ -15,10 +15,16 @@ class CreateSeoulAPI(APIView):
         data = request.data
         sale_no = data["sale_no"]
         seoul_saver = SeoulSaver(sale_no)
-        workList = seoul_saver.make_work_model()
-        Work.objects.bulk_create(workList)
-        workSizeList = seoul_saver.make_worksize_model(workList)
-        WorkSize.objects.bulk_create(workSizeList)
+        jsonData = seoul_saver.get_json_data()
+        # sale model 저장
+        sale = seoul_saver.make_sale_model(jsonData)
+        sale.save()
+
+
+        # workList = seoul_saver.make_work_model()
+        # Work.objects.bulk_create(workList)
+        # workSizeList = seoul_saver.make_worksize_model(workList)
+        # WorkSize.objects.bulk_create(workSizeList)
         return JsonResponse(
             {"id":sale_no}, status=200, safe=False
         )

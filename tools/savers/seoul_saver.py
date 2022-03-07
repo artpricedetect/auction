@@ -1,4 +1,5 @@
 from fileinput import filename
+from locale import currency
 import requests
 import yaml
 import os
@@ -12,6 +13,7 @@ from webapp.models.lot import Lot
 from webapp.models.sale import Sale
 from webapp.models.sale_details import SaleDetails
 from webapp.models.artist import Artist
+from webapp.models.organization import Organization
 
 logger = logging.getLogger("my")
 
@@ -103,7 +105,28 @@ class SeoulSaver:
         return lotList
     
     def make_sale_model(self, jsonData):
-        sale = Sale()
+        saleData = jsonData["sales"]
+        org_id = Organization(id=1, name="SeoulAuction")
+        internal_id = saleData["SALE_NO"]
+        name_kor = saleData["SALE_TITLE_KO"]
+        name_eng = saleData["SALE_TITLE_EN"]
+        type = saleData["SALE_KIND_CD"]
+
+        try:
+            location_kor = saleData["PLACE_JSON"]["ko"]
+            location_eng = saleData["PLACE_JSON"]["en"]
+        except KeyError:
+            location_kor = ""
+            location_eng = ""
+        
+        start_dt = saleData["FROM_DT"]
+        end_dt = saleData["TO_DT"]
+        finished_dt = saleData["END_DT"]
+        is_livebid = saleData["LIVE_BID_YN"]
+        currency = saleData["CURR_CD"]
+
+
+        sale = Sale(org_id=org_id, internal_id=internal_id, name_kor=name_kor, name_eng=name_eng, type=type, start_dt=start_dt, end_dt=end_dt, finished_dt=finished_dt, location_eng=location_eng, location_kor=location_kor, currency=currency, is_livebid=is_livebid)
         return sale
     
     def make_sale_details_model(self, jsonData):
@@ -125,8 +148,7 @@ if __name__ == "__main__":
     # print(jsonData["lots"][3]["EXHI_INFO_JSON"])
     jsonData = seoul_saver.get_json_data()
     # salesData = jsonData["sales"]
-    lotsData = jsonData["lots"]
-    print(jsonData["sales"])
+    print(jsonData["sales"]["PLACE_JSON"]["ko"])
     # print(lotsData[0]["EXPE_PRICE_FROM_JSON"])
     # imagesData = jsonData["images"]
     # print(lotsData[0].keys())

@@ -1,5 +1,5 @@
 from django.db import models
-from sale import Sale
+from .sale import Sale
 
 
 class SaleDetails(models.Model):
