@@ -1,7 +1,6 @@
 from fileinput import filename
 from locale import currency
 import requests
-import yaml
 import os
 import sys
 import json
