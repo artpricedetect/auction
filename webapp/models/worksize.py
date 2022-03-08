@@ -5,7 +5,7 @@ from ..models.unit import Unit
 
 class WorkSize(models.Model):
     work_id = models.ForeignKey(
-        Work, primary_key=True, on_delete=models.PROTECT, null=False, unique=True
+        Work, primary_key=True, on_delete=models.PROTECT, null=False
     )  # 작품 번호
     unit_id = models.CharField(max_length=255, null=True)  # 단위 id
     size1 = models.CharField(max_length=255, null=True)  # 크기1 (height)

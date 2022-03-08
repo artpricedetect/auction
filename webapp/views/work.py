@@ -8,7 +8,7 @@ from webapp.serializers.seoul_saver import *
 from django.http import HttpResponse, JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 
-# 
+#
 class CreateSeoulWorkAPI(APIView):
     @swagger_auto_schema(request_body=SeoulCreateSerializer)
     def post(self, request):
@@ -19,6 +19,4 @@ class CreateSeoulWorkAPI(APIView):
         Work.objects.bulk_create(workList)
         workSizeList = seoul_saver.make_worksize_model(workList)
         WorkSize.objects.bulk_create(workSizeList)
-        return JsonResponse(
-            {"id":sale_no}, status=200, safe=False
-        )
+        return JsonResponse({"id": sale_no}, status=200, safe=False)

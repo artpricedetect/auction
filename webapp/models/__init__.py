@@ -6,4 +6,3 @@ from .theme import Theme
 from .unit import Unit
 from .artist import Artist
 from .sale import *
-

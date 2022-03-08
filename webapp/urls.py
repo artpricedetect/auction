@@ -14,5 +14,5 @@ urlpatterns = [
         "create/seoul",
         seoul_saver.CreateSeoulAPI.as_view(),
         name="seoul-create",
-    )
+    ),
 ]

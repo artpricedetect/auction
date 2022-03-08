@@ -22,11 +22,12 @@ class SeoulSaver:
     # 인자로 받은 sale no 에 대한 경로 등 초기설정, sale_no는 string
     def __init__(self, sale_no):
         # 프로젝트의 루트 디렉토리 (= resources 전까지의 디렉토리)
-        rootDir = os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))
-        tailDir = "/resources/data/seoulauction"
-        totalDir = rootDir + tailDir
-        self.__jsonPath = os.path.join(totalDir, "sale_"+sale_no+".json")
-
+        root_dir = os.path.dirname(
+            os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+        )
+        tail_dir = "/resources/data/seoulauction"
+        total_dir = root_dir + tail_dir
+        self.__jsonPath = os.path.join(total_dir, "sale_" + sale_no + ".json")
 
     # json 파일 경로를 전달해주는 함수
     def get_json_path(self):
@@ -35,17 +36,23 @@ class SeoulSaver:
     # json 파일 경로를 인자로 받아 json 데이터를 리턴하는 함수
     def get_json_data(self):
         json_path = self.get_json_path()
-        with open(json_path) as seoulJson:
-            jsonData = json.load(seoulJson)
-        return jsonData
-    
+        with open(json_path) as seoul_json:
+            json_data = json.load(seoul_json)
+        return json_data
+
     # work 객체 생성해서 반환해주는 함수
-    def make_work_model(self, jsonData):
-        lotsData = jsonData["lots"]
-        workList = []
-        for ld in lotsData:
+    def make_work_model(self, json_data):
+        lots_data = json_data["lots"]
+        work_list = []
+        work_created_list = []
+        for ld in lots_data:
             title_kor = ld["TITLE_KO_TXT"]
             title_eng = ld["TITLE_EN_TXT"]
+            artist, artist_created = Artist.objects.get_or_create(
+                name_kor=ld["ARTIST_NAME_KO_TXT"],
+                name_eng=ld["ARTIST_NAME_EN_TXT"],
+                born_year=ld["BORN_YEAR"],
+            )  # , death_year=ld["DEATH_YEAR"])
             make_year = ld["MAKE_YEAR_KO"]
             edition_num = ld["EDITION"]
             material_kor = ld["MATE_NM"]
@@ -54,44 +61,75 @@ class SeoulSaver:
             frame_yn = ld["FRAME_CD"]
             # sign 정보가 json으로 되어있고, ko,en,cn 저장 이지만 거의 비어있음 추후 로직으로 해결
             # sign_yn = ld["SIGN_INFO_JSON"]
-            
+
             # 데이터 까보면서 확인해야할듯
             status = ld["STAT_CD"]
             guarantee_yn = ld["GUARANTEE_YN"]
             img_url = ld["LOT_IMG_PATH"]
 
-            work = Work(title_kor=title_kor, title_eng=title_eng, make_year=make_year, edition_num=edition_num, material_kor=material_kor, material_eng=material_eng, exhibition=exhibition, frame_yn=frame_yn, status=status, guarantee_yn=guarantee_yn, img_url=img_url)
-            workList.append(work)
-        return workList
-    
-    def make_worksize_model(self, jsonData, workList):
-        lotsData = jsonData["lots"]
-        workSizeList = []
+            work, work_created = Work.objects.get_or_create(
+                title_kor=title_kor,
+                title_eng=title_eng,
+                artist_id=artist,
+                make_year=make_year,
+                edition_num=edition_num,
+                material_kor=material_kor,
+                material_eng=material_eng,
+                exhibition=exhibition,
+                frame_yn=frame_yn,
+                status=status,
+                guarantee_yn=guarantee_yn,
+                img_url=img_url,
+            )
+            # work가 생성된 경우에만 work_list에 추가
+            if work_created:
+                work_list.append(work)
+            # work_size를 위해서 work_created_list 저장 후 인자로 전달
+            work_created_list.append(work_created)
+        return work_list, work_created_list
+
+    def make_worksize_model(self, json_data, work_list, work_created_list):
+        lots_data = json_data["lots"]
+        work_size_list = []
         count = 0
-        for ld in lotsData:
-            sizeLd = ld["LOT_SIZE_JSON"][0]
 
-            unit_id = sizeLd["UNIT_CD"]
-            size1 = sizeLd["SIZE1"]
-            size2 = sizeLd["SIZE2"]
-            size3 = sizeLd["SIZE3"]
-            canvas_yn = sizeLd["CANVAS"]
-            diam_yn = sizeLd["DIAMETER_YN"]
-            prefix = sizeLd["PREFIX"]
-            suffix = sizeLd["SUFFIX"]
-            mix_code = sizeLd["MIX_CD"]
-            canvas_ext_yn = sizeLd["CANVAS_EXT_YN"]
+        for i in range(len(lots_data)):
+            # work가 create된 경우에만 size list append
+            # lots_data의 길이 = work_created_list의 길이
+            if work_created_list[i]:
+                sizeLd = lots_data[i]["LOT_SIZE_JSON"][0]
 
-            workSize = WorkSize(work_id=workList[count], unit_id=unit_id, size1=size1, size2=size2, size3=size3, canvas_yn=canvas_yn, diam_yn=diam_yn, prefix=prefix, suffix=suffix, mix_code=mix_code, canvas_ext_yn=canvas_ext_yn)
-            workSizeList.append(workSize)
-            count += 1
-        return workSizeList
+                unit_id = sizeLd["UNIT_CD"]
+                size1 = sizeLd["SIZE1"]
+                size2 = sizeLd["SIZE2"]
+                size3 = sizeLd["SIZE3"]
+                canvas_yn = sizeLd["CANVAS"]
+                diam_yn = sizeLd["DIAMETER_YN"]
+                prefix = sizeLd["PREFIX"]
+                suffix = sizeLd["SUFFIX"]
+                mix_code = sizeLd["MIX_CD"]
+                canvas_ext_yn = sizeLd["CANVAS_EXT_YN"]
+                work_size = WorkSize(
+                    work_id=work_list[count],
+                    unit_id=unit_id,
+                    size1=size1,
+                    size2=size2,
+                    size3=size3,
+                    canvas_yn=canvas_yn,
+                    diam_yn=diam_yn,
+                    prefix=prefix,
+                    suffix=suffix,
+                    mix_code=mix_code,
+                    canvas_ext_yn=canvas_ext_yn,
+                )
+                work_size_list.append(work_size)
+                count += 1
+        return work_size_list
 
-    def make_lot_model(self, jsonData):
-        lotsData = jsonData["lots"]
-        lotList = []
-        for ld in lotsData:
-            sale_id = ld["SALE_NO"]
+    def make_lot_model(self, json_data, sale):
+        lots_data = json_data["lots"]
+        lot_list = []
+        for ld in lots_data:
             lot_num = ld["LOT_NO"]
             sold_yn = ld["SOLD_YN"]
             sold_price = ld["LAST_PRICE"]
@@ -100,43 +138,67 @@ class SeoulSaver:
             est_lower_price = ld["EXPE_PRICE_FROM_JSON"]
             bid_cnt = ld["BID_CNT"]
 
-            lot = Lot(sale_id=sale_id, lot_num=lot_num, sold_yn=sold_yn, sold_price=sold_price, start_price=start_price, est_upper_price=est_upper_price, est_lower_price=est_lower_price, bid_cnt=bid_cnt)
-            lotList.append(lot)
-        return lotList
-    
-    def make_sale_model(self, jsonData):
-        saleData = jsonData["sales"]
+            lot = Lot(
+                sale_id=sale,
+                lot_num=lot_num,
+                sold_yn=sold_yn,
+                sold_price=sold_price,
+                start_price=start_price,
+                est_upper_price=est_upper_price,
+                est_lower_price=est_lower_price,
+                bid_cnt=bid_cnt,
+            )
+            lot_list.append(lot)
+        return lot_list
+
+    def make_sale_model(self, json_data):
+        sale_data = json_data["sales"]
         org_id = Organization(id=1, name="SeoulAuction")
-        internal_id = saleData["SALE_NO"]
-        name_kor = saleData["SALE_TITLE_KO"]
-        name_eng = saleData["SALE_TITLE_EN"]
-        type = saleData["SALE_KIND_CD"]
+        internal_id = sale_data["SALE_NO"]
+        name_kor = sale_data["SALE_TITLE_KO"]
+        name_eng = sale_data["SALE_TITLE_EN"]
+        type = sale_data["SALE_KIND_CD"]
 
         try:
-            location_kor = saleData["PLACE_JSON"]["ko"]
-            location_eng = saleData["PLACE_JSON"]["en"]
+            location_kor = sale_data["PLACE_JSON"]["ko"]
+            location_eng = sale_data["PLACE_JSON"]["en"]
         except KeyError:
             location_kor = ""
             location_eng = ""
-        
-        start_dt = saleData["FROM_DT"]
-        end_dt = saleData["TO_DT"]
-        finished_dt = saleData["END_DT"]
-        is_livebid = saleData["LIVE_BID_YN"]
-        currency = saleData["CURR_CD"]
 
+        start_dt = sale_data["FROM_DT"]
+        end_dt = sale_data["TO_DT"]
+        finished_dt = sale_data["END_DT"]
+        is_livebid = sale_data["LIVE_BID_YN"]
+        currency = sale_data["CURR_CD"]
 
-        sale = Sale(org_id=org_id, internal_id=internal_id, name_kor=name_kor, name_eng=name_eng, type=type, start_dt=start_dt, end_dt=end_dt, finished_dt=finished_dt, location_eng=location_eng, location_kor=location_kor, currency=currency, is_livebid=is_livebid)
+        sale = Sale(
+            org_id=org_id,
+            internal_id=internal_id,
+            name_kor=name_kor,
+            name_eng=name_eng,
+            type=type,
+            start_dt=start_dt,
+            end_dt=end_dt,
+            finished_dt=finished_dt,
+            location_eng=location_eng,
+            location_kor=location_kor,
+            currency=currency,
+            is_livebid=is_livebid,
+        )
         return sale
-    
-    def make_sale_details_model(self, jsonData):
-        saleDetailsList = []
-        return saleDetailsList
-    
-    def make_artist_model(self, jsonData):
-        artistList = []
-        return artistList
 
+    def make_sale_details_model(self, json_data, sale):
+        lots_data = json_data["lots"]
+        lot_count = len(lots_data)
+        estimate_high = json_data["sales"]["MAX_KRW_EXPE_PRICE"]
+        estimate_low = json_data["sales"]["MIN_KRW_EXPE_PRICE"]
+        # todo: 로직으로 구현하는 column
+
+        saleDetails = SaleDetails(
+            id=sale, lot_count=lot_count, estimate_high=estimate_high, estimate_low=estimate_low
+        )
+        return saleDetails
 
 
 if __name__ == "__main__":
@@ -146,15 +208,15 @@ if __name__ == "__main__":
     # workList, workSizeList = seoul_saver.make_work_model()
 
     # print(jsonData["lots"][3]["EXHI_INFO_JSON"])
-    jsonData = seoul_saver.get_json_data()
+    json_data = seoul_saver.get_json_data()
     # salesData = jsonData["sales"]
-    print(jsonData["sales"]["PLACE_JSON"]["ko"])
+    print(json_data["sales"]["PLACE_JSON"]["ko"])
     # print(lotsData[0]["EXPE_PRICE_FROM_JSON"])
     # imagesData = jsonData["images"]
     # print(lotsData[0].keys())
     # for ld in lotsData:
-        # print(ld["TITLE_KO_TXT"])
-        # print(ld["TITLE_EN_TXT"])
+    # print(ld["TITLE_KO_TXT"])
+    # print(ld["TITLE_EN_TXT"])
 
     # with open(json_path) as seoulJson:
     #     seoulData = json.load(seoulJson)
