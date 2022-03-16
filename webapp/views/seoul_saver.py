@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
+from tools.alarm.alarm import AlarmManager
 from tools.savers.seoul_saver import SeoulSaver
 from webapp.models.organization import Organization
 from webapp.models.sale_details import SaleDetails
@@ -24,24 +25,30 @@ class CreateSeoulAPI(APIView):
 
         # seoul_saver 객체 생성 및 jsonData 얻어옴
         seoul_saver = SeoulSaver(sale_no)
-        json_data = seoul_saver.get_json_data()
-        # sale model 저장
-        sale = seoul_saver.make_sale_model(json_data)
-        sale.save()
-        # sale details model 저장
-        saleDetails = seoul_saver.make_sale_details_model(json_data, sale)
-        saleDetails.save()
-        # lot model 저장
-        lot_list = seoul_saver.make_lot_model(json_data, sale)
-        Lot.objects.bulk_create(lot_list)
-        # work model 저장
-        work_list, work_created_lest = seoul_saver.make_work_model(json_data)
-        # make_work_model에서 이미 Work를 create하기 때문에 Work.objects.bulk_create(work_list)가 없다
-        # work size model 저장
-        work_size_list = seoul_saver.make_worksize_model(json_data, work_list, work_created_lest)
-        WorkSize.objects.bulk_create(work_size_list)
+        try:
+            json_data = seoul_saver.get_json_data()
+        except Exception as e:
+            saver_alarm = AlarmManager()
+            saver_alarm.alarm("sale_no를 확인해주세요")
+            return JsonResponse({"message": e}, status=500)
+        else:
+            # sale model 저장
+            sale = seoul_saver.make_sale_model(json_data)
+            sale.save()
+            # sale details model 저장
+            saleDetails = seoul_saver.make_sale_details_model(json_data, sale)
+            saleDetails.save()
+            # lot model 저장
+            lot_list = seoul_saver.make_lot_model(json_data, sale)
+            Lot.objects.bulk_create(lot_list)
+            # work model 저장
+            seoul_saver.make_work_model(json_data)
+            # make_work_model에서 이미 Work를 create하기 때문에 Work.objects.bulk_create(work_list)가 없다
+            # work size model 저장
+            # work_size_list = seoul_saver.make_worksize_model(json_data, work_list, work_created_lest)
+            # WorkSize.objects.bulk_create(work_size_list)
 
-        return JsonResponse({"id": sale_no}, status=200, safe=False)
+            return JsonResponse({"id": sale_no}, status=200, safe=False)
 
 
 # class CreateSeoulLotAPI(APIView):

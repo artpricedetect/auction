@@ -14,10 +14,10 @@ class Sale(models.Model):
 
     location_kor = models.CharField(max_length=1500, null=True)  # 경매 위치
     location_eng = models.CharField(max_length=1500, null=True)  # 경매 위치(영어)
-    start_dt = models.CharField(max_length=255, null=True)  # 경매 시작 timestamp
-    end_dt = models.CharField(max_length=255, null=True)  # 경매 종료 timestamp
-    finished_dt = models.CharField(max_length=255, null=True)  # 경매 최종 종료 timestamp
-    is_livebid = models.CharField(max_length=255, null=True)  # Live Bid 여부
+    start_dt = models.DateTimeField(null=True)  # 경매 시작 timestamp
+    end_dt = models.DateTimeField(null=True)  # 경매 종료 timestamp
+    finished_dt = models.DateTimeField(null=True)  # 경매 최종 종료 timestamp
+    is_livebid = models.BooleanField(null=True)  # Live Bid 여부
 
     CURRENCY_CHOICES = (("KRW", "KRW"), ("USD", "USD"))
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES)  # 사용 통화

@@ -5,6 +5,8 @@ import os
 import sys
 import json
 import logging
+from datetime import datetime
+import time
 
 from webapp.models.work import Work
 from webapp.models.worksize import WorkSize
@@ -42,8 +44,8 @@ class SeoulSaver:
     # work 객체 생성해서 반환해주는 함수
     def make_work_model(self, json_data):
         lots_data = json_data["lots"]
-        work_list = []
-        work_created_list = []
+        # work_list = []
+        # work_created_list = []
         for ld in lots_data:
             title_kor = ld["TITLE_KO_TXT"]
             title_eng = ld["TITLE_EN_TXT"]
@@ -57,13 +59,22 @@ class SeoulSaver:
             material_kor = ld["MATE_NM"]
             material_eng = ld["MATE_NM_EN"]
             exhibition = json.dumps(ld["EXHI_INFO_JSON"])
-            frame_yn = ld["FRAME_CD"]
+            if ld["FRAME_CD"] == "framed":
+                frame_yn = True
+            elif ld["FRAME_CD"] == "unframed":
+                frame_yn = False
+            else:
+                frame_yn = None
             # sign 정보가 json으로 되어있고, ko,en,cn 저장 이지만 거의 비어있음 추후 로직으로 해결
             # sign_yn = ld["SIGN_INFO_JSON"]
-
             # 데이터 까보면서 확인해야할듯
             status = ld["STAT_CD"]
-            guarantee_yn = ld["GUARANTEE_YN"]
+            if ld["GUARANTEE_YN"] == "Y":
+                guarantee_yn = True
+            elif ld["GUARANTEE_YN"] == "N":
+                guarantee_yn = False
+            else:
+                guarantee_yn = None
             img_url = ld["LOT_IMG_PATH"]
 
             work, work_created = Work.objects.get_or_create(
@@ -82,55 +93,105 @@ class SeoulSaver:
             )
             # work가 생성된 경우에만 work_list에 추가
             if work_created:
-                work_list.append(work)
-            # work_size를 위해서 work_created_list 저장 후 인자로 전달
-            work_created_list.append(work_created)
-        return work_list, work_created_list
+                for i in range(len(ld["LOT_SIZE_JSON"])):
+                    size_ld = ld["LOT_SIZE_JSON"][i]
+                    unit_id = size_ld["UNIT_CD"]
+                    size_no = i
+                    size1 = size_ld["SIZE1"]
+                    size2 = size_ld["SIZE2"]
+                    size3 = size_ld["SIZE3"]
+                    if size_ld["CANVAS"] == 0:
+                        canvas = None
+                    else:
+                        canvas = size_ld["CANVAS"]
+                    # canvas = sizeLd["CANVAS"]
+                    if size_ld["DIAMETER_YN"] == "Y":
+                        diam_yn = True
+                    elif size_ld["DIAMETER_YN"] == "N":
+                        diam_yn = False
+                    else:
+                        diam_yn = None
+                    # diam_yn = sizeLd["DIAMETER_YN"]
+                    prefix = size_ld["PREFIX"]
+                    suffix = size_ld["SUFFIX"]
+                    mix_code = size_ld["MIX_CD"]
+                    if size_ld["CANVAS_EXT_YN"] == "Y":
+                        canvas_ext_yn = True
+                    elif size_ld["CANVAS_EXT_YN"] == "N":
+                        canvas_ext_yn = False
+                    else:
+                        canvas_ext_yn = None
+                    work_size = WorkSize(
+                        work_id=work,
+                        unit_id=unit_id,
+                        size_no=size_no,
+                        size1=size1,
+                        size2=size2,
+                        size3=size3,
+                        canvas=canvas,
+                        diam_yn=diam_yn,
+                        prefix=prefix,
+                        suffix=suffix,
+                        mix_code=mix_code,
+                        canvas_ext_yn=canvas_ext_yn,
+                    )
+                    work_size.save()
+        return
 
-    def make_worksize_model(self, json_data, work_list, work_created_list):
-        lots_data = json_data["lots"]
-        work_size_list = []
-        count = 0
+    # worksize:work n:1 로 bulk create 대신 save 구현
 
-        for i in range(len(lots_data)):
-            # work가 create된 경우에만 size list append
-            # lots_data의 길이 = work_created_list의 길이
-            if work_created_list[i]:
-                sizeLd = lots_data[i]["LOT_SIZE_JSON"][0]
+    # def make_worksize_model(self, json_data, work_list, work_created_list):
+    #     lots_data = json_data["lots"]
+    #     work_size_list = []
+    #     count = 0
 
-                unit_id = sizeLd["UNIT_CD"]
-                size1 = sizeLd["SIZE1"]
-                size2 = sizeLd["SIZE2"]
-                size3 = sizeLd["SIZE3"]
-                canvas_yn = sizeLd["CANVAS"]
-                diam_yn = sizeLd["DIAMETER_YN"]
-                prefix = sizeLd["PREFIX"]
-                suffix = sizeLd["SUFFIX"]
-                mix_code = sizeLd["MIX_CD"]
-                canvas_ext_yn = sizeLd["CANVAS_EXT_YN"]
-                work_size = WorkSize(
-                    work_id=work_list[count],
-                    unit_id=unit_id,
-                    size1=size1,
-                    size2=size2,
-                    size3=size3,
-                    canvas_yn=canvas_yn,
-                    diam_yn=diam_yn,
-                    prefix=prefix,
-                    suffix=suffix,
-                    mix_code=mix_code,
-                    canvas_ext_yn=canvas_ext_yn,
-                )
-                work_size_list.append(work_size)
-                count += 1
-        return work_size_list
+    #     for i in range(len(lots_data)):
+    #         # work가 create된 경우에만 size list append
+    #         # lots_data의 길이 = work_created_list의 길이
+    #         if work_created_list[i]:
+    #             # size가 여러개인 경우..?
+    #             sizeLd = lots_data[i]["LOT_SIZE_JSON"][0]
+
+    #             unit_id = sizeLd["UNIT_CD"]
+    #             size1 = sizeLd["SIZE1"]
+    #             size2 = sizeLd["SIZE2"]
+    #             size3 = sizeLd["SIZE3"]
+
+    #             # canvas_yn = sizeLd["CANVAS"]
+    #             # diam_yn = sizeLd["DIAMETER_YN"]
+    #             prefix = sizeLd["PREFIX"]
+    #             suffix = sizeLd["SUFFIX"]
+    #             mix_code = sizeLd["MIX_CD"]
+    #             canvas_ext_yn = sizeLd["CANVAS_EXT_YN"]
+    #             work_size = WorkSize(
+    #                 work_id=work_list[count],
+    #                 unit_id=unit_id,
+    #                 size1=size1,
+    #                 size2=size2,
+    #                 size3=size3,
+    #                 canvas_yn=canvas_yn,
+    #                 diam_yn=diam_yn,
+    #                 prefix=prefix,
+    #                 suffix=suffix,
+    #                 mix_code=mix_code,
+    #                 canvas_ext_yn=canvas_ext_yn,
+    #             )
+    #             work_size_list.append(work_size)
+    #             count += 1
+    #     return work_size_list
 
     def make_lot_model(self, json_data, sale):
         lots_data = json_data["lots"]
         lot_list = []
         for ld in lots_data:
             lot_num = ld["LOT_NO"]
-            sold_yn = ld["SOLD_YN"]
+            if ld["SOLD_YN"] == "Y":
+                sold_yn = True
+            elif ld["SOLD_YN"] == "N":
+                sold_yn = False
+            else:
+                sold_yn = None
+            # sold_yn = ld["SOLD_YN"]
             sold_price = ld["LAST_PRICE"]
             start_price = ld["START_PRICE"]
             est_upper_price = ld["EXPE_PRICE_TO_JSON"]
@@ -165,10 +226,15 @@ class SeoulSaver:
             location_kor = ""
             location_eng = ""
 
-        start_dt = sale_data["FROM_DT"]
-        end_dt = sale_data["TO_DT"]
-        finished_dt = sale_data["END_DT"]
-        is_livebid = sale_data["LIVE_BID_YN"]
+        start_dt = datetime.fromtimestamp(sale_data["FROM_DT"] / 1000)
+        end_dt = datetime.fromtimestamp(sale_data["TO_DT"] / 1000)
+        finished_dt = datetime.fromtimestamp(sale_data["END_DT"] / 1000)
+        if sale_data["LIVE_BID_YN"] == "Y":
+            is_livebid = True
+        elif sale_data["LIVE_BID_YN"] == "N":
+            is_livebid = False
+        else:
+            is_livebid = None
         currency = sale_data["CURR_CD"]
 
         sale = Sale(
@@ -195,7 +261,10 @@ class SeoulSaver:
         # todo: 로직으로 구현하는 column
 
         saleDetails = SaleDetails(
-            id=sale, lot_count=lot_count, estimate_high=estimate_high, estimate_low=estimate_low
+            id=sale,
+            lot_count=lot_count,
+            estimate_high=estimate_high,
+            estimate_low=estimate_low,
         )
         return saleDetails
 
@@ -209,7 +278,9 @@ if __name__ == "__main__":
     # print(jsonData["lots"][3]["EXHI_INFO_JSON"])
     json_data = seoul_saver.get_json_data()
     # salesData = jsonData["sales"]
-    print(json_data["sales"]["PLACE_JSON"]["ko"])
+    from_date = json_data["sales"]["FROM_DT"]
+    print(from_date / 1000)
+    print(datetime.fromtimestamp(from_date / 1000))
     # print(lotsData[0]["EXPE_PRICE_FROM_JSON"])
     # imagesData = jsonData["images"]
     # print(lotsData[0].keys())
