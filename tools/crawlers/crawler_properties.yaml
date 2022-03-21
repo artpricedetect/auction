@@ -1,3 +1,6 @@
+max_iteration: 3
+re_request_time: 10 # 재요청 시 10초 뒤에 요청
+
 seoulauction:
   entrypoint_url: 'https://www.seoulauction.com/login/'
   login_url: 'https://www.seoulauction.com/processLogin'
