@@ -1,4 +1,5 @@
 from webapp.models import sale
+from webapp.models.organization import Organization
 from rest_framework.views import APIView
 from webapp.serializers.organization import *
 from django.http import JsonResponse
