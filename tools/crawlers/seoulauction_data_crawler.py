@@ -1,10 +1,13 @@
 import requests, json, yaml, os, random, time
 
 from credential_manager import CredentialManager
+from exceptions import NeedReRequest, LoginFailed
 
 
 class SeoulAuctionDataCrawler:
     def __init__(self):
+
+        self.organization = "seoulauction"
         # Property 파일 세팅
         filename = os.path.join(os.path.dirname(__file__), "crawler_properties.yaml")
 
@@ -39,6 +42,25 @@ class SeoulAuctionDataCrawler:
         }
 
         self.__image_formats = ("image/png", "image/jpeg", "image/jpg")
+
+        # retry test 용 변수
+        self.retry_count = 0
+
+    # retry test
+    def retry_test(self, arg1, arg2):
+
+        if self.retry_count < 1:
+            self.retry_count += 1
+            raise NeedReRequest
+        elif self.retry_count < 2:
+            self.retry_count += 1
+            raise LoginFailed
+        else:
+            return arg1 + arg2
+
+    # Credential Manager로부터 받은 Authorized Header 정보를 저장
+    def get_request_headers(self):
+        return self.__request_headers
 
     # Credential Manager로부터 받은 Authorized Header 정보를 저장
     def set_request_headers(self, header_dic):
@@ -76,7 +98,8 @@ class SeoulAuctionDataCrawler:
     def get_local_latest_sale_no(self):
         data_path = os.path.join(os.path.dirname(__file__), "../../resources/data/seoulauction/")
 
-        sale_list = os.listdir(data_path)
+        sale_list = [x for x in os.listdir(data_path) if x != ".gitignore"]
+
         if sale_list:
             return max([int(files.split(".")[0].split("_")[1]) for files in sale_list])
         else:
