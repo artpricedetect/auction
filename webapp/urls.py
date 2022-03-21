@@ -12,7 +12,7 @@ urlpatterns = [
     ),
     path(
         "create/seoul",
-        seoul_saver.CreateSeoulAPI.as_view(),
+        seoul_saver.SeoulSaverAPI.as_view(),
         name="seoul-create",
     ),
 ]

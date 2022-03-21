@@ -13,8 +13,8 @@ from django.http import HttpResponse, JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 
 #
-class CreateSeoulAPI(APIView):
-    @swagger_auto_schema(request_body=SeoulCreateSerializer)
+class SeoulSaverAPI(APIView):
+    @swagger_auto_schema(request_body=SeoulSaverSerializer)
     def post(self, request):
         data = request.data
         sale_no = data["sale_no"]
