@@ -12,7 +12,7 @@ class Sale(models.Model):
     TYPE_CHOICES = (("1", "OFFLINE"), ("2", "ONLINE"), ("3", "HONG_KONG"))
     type = models.CharField(max_length=2, choices=TYPE_CHOICES)  # 경매 타입
 
-    locaton_kor = models.CharField(max_length=1500, null=True)  # 경매 위치
+    location_kor = models.CharField(max_length=1500, null=True)  # 경매 위치
     location_eng = models.CharField(max_length=1500, null=True)  # 경매 위치(영어)
     start_dt = models.DateTimeField(null=True)  # 경매 시작 timestamp
     end_dt = models.DateTimeField(null=True)  # 경매 종료 timestamp
