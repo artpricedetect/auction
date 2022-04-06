@@ -28,22 +28,22 @@ class SeoulSaver:
         )
         tail_dir = "/resources/data/seoulauction"
         total_dir = root_dir + tail_dir
-        self.__jsonPath = os.path.join(total_dir, "sale_" + sale_no + ".json")
+        self.__json_path = os.path.join(total_dir, "sale_" + sale_no + ".json")
 
     # json 파일 경로를 전달해주는 함수
     def get_json_path(self):
-        return self.__jsonPath
+        return self.__json_path
 
     # json 파일 경로를 인자로 받아 json 데이터를 리턴하는 함수
     def get_json_data(self):
         json_path = self.get_json_path()
         with open(json_path) as seoul_json:
-            json_data = json.load(seoul_json)
-        return json_data
+            self.__json_data = json.load(seoul_json)
+        return self.__json_data
 
     # work 객체 생성해서 반환해주는 함수
-    def make_work_model(self, json_data):
-        lots_data = json_data["lots"]
+    def make_work_model(self):
+        lots_data = self.__json_data["lots"]
         # work_list = []
         # work_created_list = []
         for ld in lots_data:
@@ -180,8 +180,8 @@ class SeoulSaver:
     #             count += 1
     #     return work_size_list
 
-    def make_lot_model(self, json_data, sale):
-        lots_data = json_data["lots"]
+    def make_lot_model(self, sale):
+        lots_data = self.__json_data["lots"]
         lot_list = []
         for ld in lots_data:
             lot_num = ld["LOT_NO"]
@@ -211,8 +211,8 @@ class SeoulSaver:
             lot_list.append(lot)
         return lot_list
 
-    def make_sale_model(self, json_data):
-        sale_data = json_data["sales"]
+    def make_sale_model(self,):
+        sale_data = self.__json_data["sales"]
         org_id = Organization(id=1, name="SeoulAuction")
         internal_id = sale_data["SALE_NO"]
         name_kor = sale_data["SALE_TITLE_KO"]
@@ -253,8 +253,8 @@ class SeoulSaver:
         )
         return sale
 
-    def make_sale_details_model(self, json_data, sale):
-        lots_data = json_data["lots"]
+    def make_sale_details_model(self, sale):
+        lots_data = self.__json_data["lots"]
         lot_count = len(lots_data)
         estimate_high = json_data["sales"]["MAX_KRW_EXPE_PRICE"]
         estimate_low = json_data["sales"]["MIN_KRW_EXPE_PRICE"]
